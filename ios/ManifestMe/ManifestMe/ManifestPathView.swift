@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct ManifestPathView: View {
-    @State private var selectedPath: String? = nil
-    @State private var showSheet = false
+    struct PathSelection: Identifiable {
+        let id = UUID()
+        let theme: String
+    }
+
+    @State private var selection: PathSelection? = nil
     @EnvironmentObject var videoService: VideoService // To show progress bar
     
     var body: some View {
@@ -37,29 +41,25 @@ struct ManifestPathView: View {
                         VStack(spacing: 20) {
                             // TILE 1: BEACH
                             PathCard(title: "Beach Escape", icon: "sun.max.fill", color: .orange) {
-                                selectedPath = "beach"
-                                showSheet = true
+                                selection = PathSelection(theme: "beach")
                             }
                             
                             // TILE 2: WORK ABROAD
                             PathCard(title: "Global Career", icon: "briefcase.fill", color: .blue) {
-                                selectedPath = "work"
-                                showSheet = true
+                                selection = PathSelection(theme: "work")
                             }
                             
                             // TILE 3: WILDLIFE
                             PathCard(title: "Nature Retreat", icon: "leaf.fill", color: .green) {
-                                selectedPath = "wildlife"
-                                showSheet = true
+                                selection = PathSelection(theme: "wildlife")
                             }
                         }
                         .padding()
                     }
                 }
             }
-            .sheet(isPresented: $showSheet) {
-                // Pass the 'hidden' keyword to the CreateView
-                CreateView(contextKeyword: selectedPath ?? "")
+            .sheet(item: $selection) { sel in
+                CreateView(theme: sel.theme)
             }
         }
     }

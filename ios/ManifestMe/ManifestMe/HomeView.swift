@@ -121,7 +121,7 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showCreateSheet) {
-                CreateView()
+                CreateView(theme: "wildlife")
             }
             .overlay(alignment: .bottom) {
                  // Floating Action Button for "Create"
