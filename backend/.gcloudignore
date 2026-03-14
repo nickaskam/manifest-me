@@ -1,0 +1,29 @@
+# Ignore everything in .gitignore too
+.gcloudignore
+.gitignore
+
+# Python virtualenv — this is the big one (300-500MB)
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local secrets — never upload these
+.env
+*.env
+google_credentials.json
+
+# Django local files
+db.sqlite3
+staticfiles/
+*.log
+
+# macOS
+.DS_Store
+
+# Git
+.git/

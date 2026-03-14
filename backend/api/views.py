@@ -65,9 +65,16 @@ def upload_profile_image(request):
     # We use 'users/{id}/profile/avatar.jpg' as the standard path
     target_path = f"users/{user_id}/profile/avatar.jpg"
     public_url = upload_blob(BUCKET_NAME, temp_path, target_path)
-    
+
+    # Clean up temp file
+    import os as _os
+    try:
+        _os.remove(temp_path)
+    except OSError:
+        pass
+
     return Response({
-        "status": "success", 
+        "status": "success",
         "image_url": public_url
     })
 
