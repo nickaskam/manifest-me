@@ -25,8 +25,7 @@ deploy_api() {
   cp Dockerfile.api Dockerfile
 
   step "Uploading source to Cloud Build (this takes ~30s)..."
-  gcloud builds submit --tag "${REPO}/api:latest" . \
-    --suppress-logs 2>&1 | grep -E "(Creating|Uploading|BUILD|PUSH|Finished|ERROR|Step)" || true
+  gcloud builds submit --tag "${REPO}/api:latest" .
 
   ok "Image built and pushed: ${REPO}/api:latest"
   rm Dockerfile
@@ -43,7 +42,7 @@ deploy_api() {
     --memory 512Mi \
     --cpu 1 \
     --timeout 60 \
-    --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT}"
+    --update-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT}"
 
   ok "API deployed → https://manifest-me-api-79704250837.us-central1.run.app"
 }
@@ -54,8 +53,7 @@ deploy_worker() {
   cp Dockerfile.worker Dockerfile
 
   step "Uploading source to Cloud Build (this takes ~30s)..."
-  gcloud builds submit --tag "${REPO}/worker:latest" . \
-    --suppress-logs 2>&1 | grep -E "(Creating|Uploading|BUILD|PUSH|Finished|ERROR|Step)" || true
+  gcloud builds submit --tag "${REPO}/worker:latest" .
 
   ok "Image built and pushed: ${REPO}/worker:latest"
   rm Dockerfile
@@ -73,7 +71,7 @@ deploy_worker() {
     --cpu 2 \
     --cpu-boost \
     --timeout 3600 \
-    --set-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT}"
+    --update-env-vars "GOOGLE_CLOUD_PROJECT=${PROJECT}"
 
   ok "Worker deployed."
 }

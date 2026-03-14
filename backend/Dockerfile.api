@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN DATABASE_URL=postgres://none:none@none/none python manage.py collectstatic --noinput
+RUN DATABASE_URL=postgres://none:none@none/none SECRET_KEY=dummy-build-only-key python manage.py collectstatic --noinput
 
 CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 60 core.wsgi:application
