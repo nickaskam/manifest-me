@@ -7,11 +7,13 @@
 
 import SwiftUI
 import PhotosUI
+import LocalAuthentication
 
 struct ProfileView: View {
     @EnvironmentObject var authService: AuthService
     @State private var profileImageURL: URL?
-    
+    @State private var biometricError: String? = nil
+
     // --- PICKER STATE ---
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var isUploading: Bool = false
@@ -58,6 +60,50 @@ struct ProfileView: View {
                 Text("Dreamer")
                     .font(.title).bold().foregroundColor(.white)
                 
+                // --- SECURITY SECTION ---
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Security")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal)
+
+                    Toggle(isOn: Binding(
+                        get: { authService.isBiometricEnabled },
+                        set: { enabled in
+                            if enabled {
+                                requestBiometrics { success in
+                                    if success {
+                                        authService.isBiometricEnabled = true
+                                        UserDefaults.standard.set(true, forKey: "isBiometricEnabled")
+                                    } else {
+                                        biometricError = "Face ID is not available on this device."
+                                    }
+                                }
+                            } else {
+                                authService.isBiometricEnabled = false
+                                UserDefaults.standard.set(false, forKey: "isBiometricEnabled")
+                            }
+                        }
+                    )) {
+                        HStack {
+                            Image(systemName: "faceid")
+                                .foregroundColor(.yellow)
+                            Text("Require Face ID on open")
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .tint(.yellow)
+
+                    if let err = biometricError {
+                        Text(err).font(.caption).foregroundColor(.red).padding(.horizontal)
+                    }
+                }
+                .padding(.vertical, 8)
+                .background(Color(white: 0.1))
+                .cornerRadius(10)
+                .padding(.horizontal)
+
                 Button(action: { authService.logout() }) {
                     Text("Log Out")
                         .foregroundColor(.red)
@@ -67,7 +113,7 @@ struct ProfileView: View {
                         .cornerRadius(10)
                 }
                 .padding(.horizontal)
-                
+
                 Spacer()
             }
             .padding(.top, 50)
@@ -75,6 +121,19 @@ struct ProfileView: View {
         .onAppear { fetchProfile() }
     }
     
+    // --- BIOMETRICS ---
+    func requestBiometrics(completion: @escaping (Bool) -> Void) {
+        let context = LAContext()
+        var error: NSError?
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            completion(false)
+            return
+        }
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Enable Face ID for ManifestMe") { success, _ in
+            DispatchQueue.main.async { completion(success) }
+        }
+    }
+
     // --- UPLOAD LOGIC ---
     func uploadProfilePicture(data: Data) {
         guard let token = KeychainHelper.standard.read() else { return }

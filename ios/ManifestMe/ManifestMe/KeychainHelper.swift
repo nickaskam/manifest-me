@@ -10,72 +10,74 @@ import Foundation
 class KeychainHelper {
     static let standard = KeychainHelper()
     private let service = "com.manifestme.auth"
-    private let account = "authToken"
-    
-    // Save the token securely
+    private let accessAccount = "authToken"
+    private let refreshAccount = "authRefreshToken"
+
+    // MARK: - Access Token
+
     func save(token: String) {
-        let data = Data(token.utf8)
-        
-        // 1. Create a query for the ACCOUNT (not the data)
+        saveItem(token, account: accessAccount)
+    }
+
+    func read() -> String? {
+        readItem(account: accessAccount)
+    }
+
+    func delete() {
+        deleteItem(account: accessAccount)
+    }
+
+    // MARK: - Refresh Token
+
+    func saveRefreshToken(_ token: String) {
+        saveItem(token, account: refreshAccount)
+    }
+
+    func readRefreshToken() -> String? {
+        readItem(account: refreshAccount)
+    }
+
+    func deleteRefreshToken() {
+        deleteItem(account: refreshAccount)
+    }
+
+    // MARK: - Private helpers
+
+    private func saveItem(_ value: String, account: String) {
+        let data = Data(value.utf8)
         let query = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: account
         ] as [String: Any]
-        
-        // 2. Delete any existing item first
         SecItemDelete(query as CFDictionary)
-        
-        // 3. Prepare the new item
-        var newAttributes = query
-        newAttributes[kSecValueData as String] = data
-        
-        // 4. Add it and check the result
-        let status = SecItemAdd(newAttributes as CFDictionary, nil)
-        
-        if status == errSecSuccess {
-            print("🔐 Keychain: Save Successful!")
-        } else if status == errSecDuplicateItem {
-            print("🔐 Keychain: Error - Duplicate Item.")
-        } else {
-            print("🔐 Keychain: Save Error (Status: \(status))")
-        }
+        var newItem = query
+        newItem[kSecValueData as String] = data
+        SecItemAdd(newItem as CFDictionary, nil)
     }
-    
-    // Read the token back
-    func read() -> String? {
+
+    private func readItem(account: String) -> String? {
         let query = [
+            kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: account,
-            kSecClass: kSecClassGenericPassword,
             kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitOne // <--- Crucial fix for reading
+            kSecMatchLimit: kSecMatchLimitOne
         ] as [String: Any]
-        
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
-        
-        if status == errSecSuccess {
-            if let data = result as? Data {
-                return String(data: data, encoding: .utf8)
-            }
-        } else if status == errSecItemNotFound {
-            print("🔐 Keychain: No token found (Clean slate).")
-        } else {
-            print("🔐 Keychain: Read Error (Status: \(status))")
+        if status == errSecSuccess, let data = result as? Data {
+            return String(data: data, encoding: .utf8)
         }
-        
         return nil
     }
-    
-    // Delete (for Logout)
-    func delete() {
+
+    private func deleteItem(account: String) {
         let query = [
+            kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
-            kSecAttrAccount: account,
-            kSecClass: kSecClassGenericPassword
+            kSecAttrAccount: account
         ] as [String: Any]
-        
         SecItemDelete(query as CFDictionary)
     }
 }

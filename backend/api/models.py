@@ -34,6 +34,17 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
     
+class Subscription(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    is_active = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    videos_generated_this_month = models.IntegerField(default=0)
+    last_reset_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} — {'active' if self.is_active else 'inactive'}"
+
+
 class BetaInvite(models.Model):
     code = models.CharField(max_length=50, unique=True)
     is_active = models.BooleanField(default=True)

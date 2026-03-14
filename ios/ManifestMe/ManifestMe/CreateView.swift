@@ -1,27 +1,26 @@
 import SwiftUI
 
 struct CreateView: View {
+    let theme: String
+
     @EnvironmentObject var videoService: VideoService
     @EnvironmentObject var authService: AuthService
-    
-    // This allows us to close the sheet programmatically
+    @EnvironmentObject var subscriptionService: SubscriptionService
+
     @Environment(\.dismiss) var dismiss
-    
+
     @State private var prompt: String = ""
-    
-    var contextKeyword: String = ""
-    
+    @State private var showPaywall: Bool = false
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
-                
-                // --- CLOSE BUTTON OVERLAY ---
+
+                // Close button
                 VStack {
                     HStack {
-                        Button(action: {
-                            dismiss() // 🏃💨 EXIT!
-                        }) {
+                        Button(action: { dismiss() }) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 30))
                                 .foregroundColor(.gray)
@@ -31,22 +30,18 @@ struct CreateView: View {
                     }
                     Spacer()
                 }
-                .zIndex(1) // Make sure it sits on top of everything
-                
-                // --- MAIN CONTENT ---
+                .zIndex(1)
+
                 VStack(spacing: 20) {
                     Text("Dream It.")
-                        .font(.largeTitle)
-                        .bold()
-                        .foregroundColor(.white)
+                        .font(.largeTitle).bold().foregroundColor(.white)
                         .padding(.top, 40)
-                    
+
                     Text("Describe your future reality in the present tense.")
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
-                    
-                    // --- INPUT AREA ---
+
                     TextEditor(text: $prompt)
                         .frame(height: 150)
                         .padding()
@@ -58,20 +53,10 @@ struct CreateView: View {
                                 .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
                         )
                         .padding()
-                    
+
                     Spacer()
-                    
-                    // --- ACTION BUTTON ---
-                    Button(action: {
-                        guard let token = KeychainHelper.standard.read() else { return }
-                        
-                        // Append context if it exists (e.g. "beach")
-                        let finalPrompt = contextKeyword.isEmpty ? prompt : "\(prompt) \(contextKeyword)"
-                        
-                        videoService.manifest(prompt: finalPrompt, token: token)
-                        dismiss()
-                        
-                    }) {
+
+                    Button(action: handleManifest) {
                         Text("Start Manifesting")
                             .font(.headline)
                             .foregroundColor(.black)
@@ -86,6 +71,25 @@ struct CreateView: View {
                 }
             }
             .navigationBarHidden(true)
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
+                    .environmentObject(subscriptionService)
+            }
         }
+        .task { await subscriptionService.checkStatus() }
+    }
+
+    private func handleManifest() {
+        guard let token = KeychainHelper.standard.read() else { return }
+
+        // If not subscribed, show paywall instead of starting
+        if !subscriptionService.isSubscribed {
+            showPaywall = true
+            return
+        }
+
+        print("📌 sending theme=\(theme) prompt=\(prompt)")
+        videoService.manifest(prompt: prompt, theme: theme, token: token)
+        dismiss()
     }
 }

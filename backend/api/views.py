@@ -9,7 +9,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from google.cloud import storage
 from .engine import generate_manifestation, upload_blob, BUCKET_NAME
-from .models import Video
+from .models import Video, Subscription
 from .tasks import enqueue_video_task
 
 from .models import BetaInvite
@@ -18,40 +18,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def manifest_video(request):
-#     prompt = request.data.get('prompt', '').lower()
-
-#     # get the user ID
-#     user_id = str(request.user.id)
     
-#     # Simple Logic to pick the folder based on keywords
-#     if 'beach' in prompt or 'ocean' in prompt or 'sea' in prompt:
-#         template = "beach_manifestation"
-#     elif 'work' in prompt or 'job' in prompt or 'abroad' in prompt:
-#         template = "work_abroad_manifestation"
-#     else:
-#         template = "wildlife_retreat_manifestation" # The default fallback
+@api_view(['GET'])
+@permission_classes([])
+def health_check(request):
+    return Response({"status": "ok"})
 
-#     print(f"🔮 Prompt: '{prompt}' -> Selected Template: '{template}'")
 
-#     try:
-#         # 2. PASS THE ID TO THE ENGINE
-#         video_url = generate_manifestation(prompt, template_name=template, user_id=user_id)
-        
-#         return Response({
-#             "status": "success",
-#             "video_url": video_url,
-#             "template_used": template
-#         })
-#     except Exception as e:
-#         print(f"❌ ERROR: {e}")
-#         return Response({
-#             "status": "error",
-#             "message": str(e)
-#         }, status=500)
-    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def check_profile_status(request):
@@ -188,16 +161,33 @@ def get_user_videos(request):
 @permission_classes([IsAuthenticated])
 def manifest_video(request):
     """Waiter: Takes the order and puts it in the queue."""
+    # Subscription quota check
+    import datetime as dt
+    today = dt.date.today()
+    sub, _ = Subscription.objects.get_or_create(user=request.user)
+    if sub.last_reset_date is None or sub.last_reset_date.month != today.month or sub.last_reset_date.year != today.year:
+        sub.videos_generated_this_month = 0
+        sub.last_reset_date = today
+        sub.save()
+    if not sub.is_active:
+        return Response({"error": "subscription_required"}, status=403)
+    if sub.videos_generated_this_month >= 1:
+        return Response({"error": "quota_exceeded"}, status=403)
+
     prompt = request.data.get('prompt', '').lower()
+    theme = request.data.get("theme", "").strip().lower()
+
+    THEME_TO_TEMPLATE = {
+        "beach": "beach_manifestation",
+        "work": "work_abroad_manifestation",
+        "wildlife": "wildlife_retreat_manifestation",
+    }
+
+    template = THEME_TO_TEMPLATE.get(theme)
+    if not template:
+        return Response({"error": "Invalid theme"}, status=400)
+
     user_id = str(request.user.id)
-    
-    # 1. TEMPLATE LOGIC (Stays here in the view)
-    if any(word in prompt for word in ['beach', 'ocean', 'sea']):
-        template = "beach_manifestation"
-    elif any(word in prompt for word in ['work', 'job', 'abroad']):
-        template = "work_abroad_manifestation"
-    else:
-        template = "wildlife_retreat_manifestation"
 
     # 2. CREATE RECORD (Frozen Model: no template_used field)
     video_obj = Video.objects.create(
@@ -208,9 +198,11 @@ def manifest_video(request):
 
     # 3. HANDOFF (We pass the template string directly to the task)
     try:
-        # We pass both the ID and the Template to the task
         enqueue_video_task(video_obj.id, template, user_id)
-        
+
+        sub.videos_generated_this_month += 1
+        sub.save()
+
         return Response({
             "video_id": video_obj.id,
             "status": "PENDING"
@@ -305,3 +297,43 @@ def get_video_status(request, video_id):
 
     except Video.DoesNotExist:
         return Response({"error": "Video not found"}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_subscription_status(request):
+    import datetime as dt
+    today = dt.date.today()
+    sub, _ = Subscription.objects.get_or_create(user=request.user)
+    if sub.last_reset_date is None or sub.last_reset_date.month != today.month or sub.last_reset_date.year != today.year:
+        sub.videos_generated_this_month = 0
+        sub.last_reset_date = today
+        sub.save()
+    videos_remaining = max(0, 1 - sub.videos_generated_this_month) if sub.is_active else 0
+    return Response({
+        "is_active": sub.is_active,
+        "videos_remaining": videos_remaining,
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_subscription(request):
+    """Receives a StoreKit 2 transaction ID from the iOS app and activates the subscription."""
+    transaction_id = request.data.get('transaction_id')
+    expires_at_str = request.data.get('expires_at')  # ISO 8601 string from StoreKit
+
+    if not transaction_id:
+        return Response({"error": "Missing transaction_id"}, status=400)
+
+    import datetime as dt
+    sub, _ = Subscription.objects.get_or_create(user=request.user)
+    sub.is_active = True
+    if expires_at_str:
+        try:
+            sub.expires_at = dt.datetime.fromisoformat(expires_at_str)
+        except ValueError:
+            pass
+    sub.save()
+
+    return Response({"status": "activated"})
