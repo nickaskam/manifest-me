@@ -463,10 +463,68 @@
         <ul>
             <li class="critical">Fix <code>min-instances=1</code> → <code>0</code> in <code>deploy.sh</code> to eliminate $67/month idle cost</li>
             <li class="critical">Pull actual Vertex AI cost per video from GCP Billing console — update projections above</li>
+            <li class="critical">Migrate off <code>veo-3.1-generate-preview</code> — deprecated April 2, 2026 (see Veo section below)</li>
             <li class="warn">Decide on subscription price before App Store submission</li>
             <li class="warn">Apply for Apple Small Business Program (reduces cut from 30% → 15% under $1M/year)</li>
             <li>Set a GCP billing alert at $50/month so cost spikes don't go unnoticed</li>
             <li>Model a "credits" alternative — sell packs of videos instead of monthly subscription</li>
+        </ul>
+    </div>
+
+    <div class="phase active">
+        <div class="tags">
+            <span class="tag status">Active</span>
+            <span class="tag date">Research complete Apr 18, 2026</span>
+        </div>
+        <h2>Veo API Migration — Cost Reduction Opportunity</h2>
+        <p style="color:#aaa;font-size:0.9rem;margin:8px 0 12px;">Current model <code>veo-3.1-generate-preview</code> is deprecated (April 2, 2026). Must migrate. Veo 3.1 Lite is 8–10x cheaper and supports all required features.</p>
+        <table style="width:100%;border-collapse:collapse;color:#aaa;font-size:0.88rem;margin-bottom:12px;">
+            <thead>
+                <tr style="color:#fff;border-bottom:1px solid #333;">
+                    <th style="text-align:left;padding:8px 4px;">Model</th>
+                    <th style="text-align:right;padding:8px 4px;">Price/sec</th>
+                    <th style="text-align:right;padding:8px 4px;">Cost per ~8s video</th>
+                    <th style="text-align:right;padding:8px 4px;">reference_images</th>
+                    <th style="text-align:right;padding:8px 4px;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid #1a1a1a;color:#f87171;">
+                    <td style="padding:8px 4px;"><code>veo-3.1-generate-preview</code></td>
+                    <td style="text-align:right;padding:8px 4px;">~$0.50</td>
+                    <td style="text-align:right;padding:8px 4px;">~$4.00</td>
+                    <td style="text-align:right;padding:8px 4px;">✅</td>
+                    <td style="text-align:right;padding:8px 4px;">Deprecated</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;"><code>veo-3.1-generate-001</code></td>
+                    <td style="text-align:right;padding:8px 4px;">~$0.40–0.75</td>
+                    <td style="text-align:right;padding:8px 4px;">~$3.20–6.00</td>
+                    <td style="text-align:right;padding:8px 4px;">✅</td>
+                    <td style="text-align:right;padding:8px 4px;">GA — safe fallback</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;background:#0a1a0a;">
+                    <td style="padding:8px 4px;"><code>veo-3.1-generate-lite</code> ⭐</td>
+                    <td style="text-align:right;padding:8px 4px;color:#4ade80;">~$0.05</td>
+                    <td style="text-align:right;padding:8px 4px;color:#4ade80;">~$0.40</td>
+                    <td style="text-align:right;padding:8px 4px;">✅</td>
+                    <td style="text-align:right;padding:8px 4px;">Preview — test first</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 4px;"><code>veo-3.1-generate-fast</code></td>
+                    <td style="text-align:right;padding:8px 4px;">~$0.15</td>
+                    <td style="text-align:right;padding:8px 4px;">—</td>
+                    <td style="text-align:right;padding:8px 4px;color:#f87171;">❌</td>
+                    <td style="text-align:right;padding:8px 4px;">Not usable</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="color:#aaa;font-size:0.85rem;margin:0 0 8px;"><strong>Code change:</strong> One line in <code>backend/api/engine.py:75</code></p>
+        <ul>
+            <li class="critical">Immediate: migrate to <code>veo-3.1-generate-001</code> (GA, safe, same features)</li>
+            <li class="warn">Then: test <code>veo-3.1-generate-lite</code> — if quality is acceptable, costs drop 90% (~$0.40/video)</li>
+            <li>At Lite pricing, 100 subscribers generating 1 video/month = ~$40 Vertex cost vs. ~$400 at current rate</li>
+            <li>Lite is still preview — have GA as fallback if quality is unacceptable</li>
         </ul>
     </div>
 
