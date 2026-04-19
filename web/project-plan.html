@@ -5,326 +5,558 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Internal Roadmap | Manifest Me</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             background-color: #000;
             color: #eee;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            max-width: 800px;
+            max-width: 860px;
             margin: 0 auto;
             padding: 40px 20px;
         }
-        h1 { border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 40px; }
-        h2 { color: #fff; margin-top: 40px; }
+        h1 { border-bottom: 1px solid #222; padding-bottom: 16px; margin-bottom: 32px; font-size: 1.6rem; }
+        h2 { color: #fff; margin: 0 0 10px; font-size: 1.1rem; }
         .phase {
-            background: #111;
-            padding: 20px;
+            background: #0d0d0d;
+            padding: 20px 24px;
             border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #333;
+            margin-bottom: 16px;
+            border: 1px solid #222;
         }
-        .phase.done { border-left: 4px solid #4ade80; } /* Green */
-        .phase.active { border-left: 4px solid #facc15; } /* Yellow */
-        .phase.todo { border-left: 4px solid #666; opacity: 0.6; }
-        
+        .phase.done    { border-left: 4px solid #4ade80; }
+        .phase.active  { border-left: 4px solid #facc15; }
+        .phase.todo    { border-left: 4px solid #444; opacity: 0.65; }
+        .phase.blocked { border-left: 4px solid #f87171; }
+
         .tag {
             text-transform: uppercase;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             letter-spacing: 1px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: inline-block;
+            margin-right: 12px;
         }
-        .done .tag { color: #4ade80; }
-        .active .tag { color: #facc15; }
-        .todo .tag { color: #888; }
+        .tags { margin-bottom: 8px; }
+        .done    .tag.status { color: #4ade80; }
+        .active  .tag.status { color: #facc15; }
+        .todo    .tag.status { color: #888; }
+        .blocked .tag.status { color: #f87171; }
+        .tag.date { color: #555; }
 
-        ul { padding-left: 20px; color: #aaa; }
-        li { margin-bottom: 8px; }
-        .back-link { color: #666; text-decoration: none; margin-bottom: 20px; display: block; }
-        .back-link:hover { color: #fff; }
+        ul { padding-left: 20px; color: #aaa; margin: 10px 0 0; }
+        li { margin-bottom: 7px; }
+        li.critical { color: #f87171; }
+        li.warn { color: #facc15; }
+
+        code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            color: #a3e635;
+        }
+        pre {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #4ade80;
+            font-size: 0.82rem;
+            margin-top: 12px;
+        }
+
+        .section-header {
+            margin: 60px 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .section-header h1 { border: none; margin: 0; padding: 0; }
+        .pill {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .pill.green  { background: #14532d; color: #4ade80; }
+        .pill.yellow { background: #422006; color: #facc15; }
+        .pill.red    { background: #450a0a; color: #f87171; }
+        .pill.gray   { background: #1c1c1c; color: #666; }
+
+        hr { border: none; border-top: 1px solid #1a1a1a; margin: 50px 0; }
+        footer { text-align: center; margin-top: 60px; color: #333; font-size: 0.8rem; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+        .stat-box {
+            background: #0d0d0d;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 18px 20px;
+            text-align: center;
+        }
+        .stat-box .number { font-size: 2rem; font-weight: 700; color: #fff; }
+        .stat-box .label  { font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .stat-box.green .number { color: #4ade80; }
+        .stat-box.yellow .number { color: #facc15; }
+        .stat-box.red .number { color: #f87171; }
     </style>
 </head>
 <body>
-    <a href="/" class="back-link">&larr; Back to Home</a>
-    <h1>Product Roadmap</h1>
+
+    <h1>Manifest Me — Internal Roadmap</h1>
+    <p style="color:#555; margin-top:-20px; margin-bottom:40px;">Last updated: April 18, 2026</p>
+
+    <!-- SNAPSHOT -->
+    <div class="grid" style="margin-bottom:40px;">
+        <div class="stat-box green">
+            <div class="number">MVP</div>
+            <div class="label">Core product complete</div>
+        </div>
+        <div class="stat-box yellow">
+            <div class="number">0%</div>
+            <div class="label">Test coverage</div>
+        </div>
+        <div class="stat-box yellow">
+            <div class="number">Manual</div>
+            <div class="label">Deploy process</div>
+        </div>
+        <div class="stat-box red">
+            <div class="number">None</div>
+            <div class="label">CI / Staging environment</div>
+        </div>
+    </div>
+
+    <!-- ── COMPLETED ─────────────────────────────────── -->
+    <div class="section-header">
+        <h1>Completed</h1>
+        <span class="pill green">Phases 1–8</span>
+    </div>
 
     <div class="phase done">
-        <span class="tag">Phase 1: Completed</span>
-        <span class="tag">Done Date: 2026-02-02</span>
-        <h2>The Foundation</h2>
+        <div class="tags">
+            <span class="tag status">Done</span>
+            <span class="tag date">Feb 2 – Mar 13, 2026</span>
+        </div>
+        <h2>Phases 1–7: Foundation through TestFlight</h2>
         <ul>
-            <li>✅ Docker container running Python/Django</li>
-            <li>✅ <strong>Neon Serverless PostgreSQL</strong> connected</li>
-            <li>✅ Native iOS App (SwiftUI) initialized</li>
-            <li>✅ Localhost Connection established</li>
+            <li>Django backend + Neon Postgres + SwiftUI iOS app</li>
+            <li>JWT auth, Keychain token storage, 401 auto-refresh</li>
+            <li>Vertex AI (Veo 3.1) video pipeline — prompt → AI clip → MoviePy stitch → GCS</li>
+            <li>Async worker architecture (Cloud Tasks + Cloud Run)</li>
+            <li>Secure video gallery with signed URLs</li>
+            <li>Invite-only beta registration (golden ticket codes)</li>
+            <li>Deployed to Google Cloud Run (API + Worker)</li>
+            <li>TestFlight approved</li>
         </ul>
     </div>
 
     <div class="phase done">
-        <span class="tag">Phase 2: Completed</span>
-        <span class="tag">Done Date: 2026-02-04</span>
-        <h2>Identity & Security</h2>
+        <div class="tags">
+            <span class="tag status">Done</span>
+            <span class="tag date">Phase 8 — Mar 13, 2026</span>
+        </div>
+        <h2>MVP Readiness</h2>
         <ul>
-            <li>✅ JWT Authentication installed on Backend</li>
-            <li>✅ Secure Login Screen on iPhone</li>
-            <li>✅ Token storage (Keychain) & Validation</li>
-            <li>✅ Navigation Logic (Login -> Home)</li>
+            <li>4-screen onboarding (shown once on first install)</li>
+            <li>Face ID lock — app locks on foreground, requires biometric to unlock</li>
+            <li>StoreKit 2 subscription — 1 video/month quota, paywall UI, restore purchases</li>
+            <li>Cloud Run tuning — API warm instance (no cold starts), worker at 4GB RAM / 2 CPUs</li>
+            <li>Profile avatar upload to GCS</li>
+            <li>App Store Connect subscription product configured (<code>com.manifestme.monthly</code>)</li>
         </ul>
     </div>
 
-    <div class="phase done">
-        <span class="tag">Phase 3: Completed</span>
-        <span class="tag">Done Date: 2026-02-08</span>
-        <h2>The "Manifesting" Engine</h2>
-        <ul>
-            <li>✅ Background "VideoService" & Queueing</li>
-            <li>✅ Context-Aware Prompts (Clothing Injection)</li>
-            <li>✅ Cloud Storage integration (Google Cloud)</li>
-            <li>✅ Backend endpoint `/api/manifest`</li>
-        </ul>
-    </div>
+    <hr>
 
-    <div class="phase done">
-        <span class="tag">Phase 4: Completed</span>
-        <span class="tag">Done Date: 2026-02-09</span>
-        <h2>The Gallery & UX</h2>
-        <ul>
-            <li>✅ Secure Video Feed (Signed URLs)</li>
-            <li>✅ 16:9 Landscape Grid with Play Buttons</li>
-            <li>✅ Async Thumbnail Generation</li>
-            <li>✅ Tab Navigation (Create, Gallery, Profile)</li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Phase 5: Completed</span>
-        <span class="tag">Done Date: 2026-02-09</span>
-        <h2>The "Golden Ticket" Layer</h2>
-        <ul>
-            <li>✅ Invite-Only Registration System (Beta Codes)</li>
-            <li>✅ Email-based Identity (swapped from username)</li>
-            <li>✅ Profile Image Integration</li>
-        </ul>
-    </div>
-
-    <div class="phase completed">
-        <span class="tag">Phase 6: Done</span>
-        <span class="tag">Date: 2026-02-10</span>
-        <h2>The Infrastructure (Cloud Run)</h2>
-        <ul>
-            <li>✅ <strong>Deploy to Google Cloud Run</strong></li>
-            <li>✅ Connect Production Neon DB</li>
-            <li>✅ Set up Secret Manager (API Keys)</li>
-            <li>✅ Generate "Golden Ticket" Beta Codes</li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Phase 7: Completed</span>
-        <span class="tag">Done Date: 2026-02-17</span>
-        <h2>The Refining (The Void & TestFlight)</h2>
-        <ul>
-            <li>✅ <strong>Solve the "Video Void" (Timeout/Async Logic)</strong></li>
-            <li>✅ Monitor GCS Bucket for "Orphaned" Videos</li>
-            <li>✅ <strong>TestFlight Approval</strong></li>
-        </ul>
+    <!-- ── IN PROGRESS ─────────────────────────────────── -->
+    <div class="section-header">
+        <h1>In Progress</h1>
+        <span class="pill yellow">Now</span>
     </div>
 
     <div class="phase active">
-        <span class="tag">Phase 8: In Progress</span>
-        <span class="tag">Started: 2026-03-13</span>
-        <h2>MVP Readiness</h2>
+        <div class="tags">
+            <span class="tag status">Active</span>
+            <span class="tag date">Started Apr 18, 2026</span>
+        </div>
+        <h2>Security Hardening</h2>
         <ul>
-            <li>✅ <strong>Onboarding Flow</strong> — 4-screen paged onboarding (Welcome, How It Works, Photo Permission, Get Started), shown once on first launch</li>
-            <li>✅ <strong>Face ID / Biometrics</strong> — Toggle in Profile; app locks on foreground and requires Face ID to unlock</li>
-            <li>✅ <strong>Session Sync Fix</strong> — Refresh token stored in Keychain; automatic token refresh on 401; app logs out cleanly if refresh fails</li>
-            <li>✅ <strong>Monthly Subscription (StoreKit 2)</strong> — Native iOS in-app purchase, paywall UI, 1 video/month quota enforced on backend</li>
-            <li>✅ <strong>Cloud Run Tuning</strong> — API keeps 1 warm instance (no cold starts); worker upgraded to 4 GB RAM + 2 CPUs (no OOM crashes); health check endpoint added</li>
-            <li>✅ <strong>App Store Connect setup</strong> — Add <code>NSFaceIDUsageDescription</code> to project; create <code>com.manifestme.monthly</code> subscription product</li>
-            <li>✅ <strong>Deploy &amp; Migrate</strong> — Run <code>./deploy.sh</code> and <code>python manage.py migrate</code> on production</li>
+            <li>✅ Rotate all secrets — Django <code>SECRET_KEY</code>, Neon DB password, <code>WORKER_SECRET</code></li>
+            <li>✅ Purge <code>backend/.env</code> from git history (git filter-repo + force push)</li>
+            <li class="warn">⬜ Remove debug <code>print()</code> statements from <code>engine.py</code>, <code>tasks.py</code>, <code>urls.py</code></li>
+            <li class="warn">⬜ Remove dead code — Celery, Redis, Boto3, Flower (in requirements + <code>core/celery.py</code>)</li>
+            <li class="warn">⬜ Move Cloud Run secrets to GCP Secret Manager (stop using env var injection)</li>
+            <li class="warn">⬜ Implement Apple receipt validation — verify StoreKit transactions against Apple's server, not just trust the client</li>
+            <li class="warn">⬜ Add rate limiting to <code>/api/register/</code> and <code>/api/manifest/</code></li>
         </ul>
     </div>
 
-    <hr style="border-color: #222; margin: 60px 0 40px;">
-    <h1>Server Setup</h1>
+    <hr>
 
-    <div class="phase done">
-        <span class="tag">Step 1 — Run the new database migration</span>
-        <h2>Apply Subscription Model to Neon</h2>
-        <p style="color:#aaa; font-size:0.9rem;">Run this from your <code>backend/</code> folder. Set <code>DATABASE_URL</code> to your Neon connection string so it targets production, not local SQLite.</p>
-        <pre style="background:#000;padding:16px;border-radius:8px;overflow-x:auto;color:#4ade80;font-size:0.85rem;">
-cd backend
+    <!-- ── NEXT UP ─────────────────────────────────── -->
+    <div class="section-header">
+        <h1>Next Up</h1>
+        <span class="pill gray">Queued</span>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Todo</span>
+        </div>
+        <h2>Backend Tests (0% → meaningful coverage)</h2>
+        <ul>
+            <li class="critical"><code>api/tests.py</code> is completely empty — no tests exist</li>
+            <li>Video model state transitions: PENDING → PROCESSING → COMPLETED / FAILED</li>
+            <li>Subscription quota enforcement — reject manifest if <code>videos_remaining == 0</code></li>
+            <li>Monthly quota reset logic (edge cases at month boundary)</li>
+            <li>Beta invite decrement — <code>uses_remaining</code> decreases on registration</li>
+            <li>JWT 401 refresh interceptor</li>
+            <li>GCS signed URL generation + expiry</li>
+            <li>Avatar upload form parsing</li>
+        </ul>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Todo</span>
+        </div>
+        <h2>CI / CD Pipeline</h2>
+        <ul>
+            <li>GitHub Actions: run backend tests on every push to <code>main</code></li>
+            <li>Block merge if tests fail</li>
+            <li>Auto-deploy to Cloud Run on green main (optional — can keep manual for now)</li>
+            <li>Add <code>.github/workflows/test.yml</code> and <code>deploy.yml</code></li>
+        </ul>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Todo</span>
+        </div>
+        <h2>Staging Environment</h2>
+        <ul>
+            <li>Separate Cloud Run services: <code>manifest-me-api-staging</code> + <code>manifest-me-worker-staging</code></li>
+            <li>Separate Neon branch or database for staging</li>
+            <li>iOS scheme pointing at staging URL for TestFlight testing</li>
+            <li>Never test new features directly against production</li>
+        </ul>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Todo</span>
+        </div>
+        <h2>Performance & Reliability</h2>
+        <ul>
+            <li>Database connection pooling — Neon supports pgBouncer; Django will exhaust connections under load without it</li>
+            <li>Fix MoviePy <code>ANTIALIAS</code> monkeypatch in <code>engine.py</code> — deprecated PIL API, will break on Pillow upgrade</li>
+            <li>Error handling for AI clips under 1 second (current stitching loop has no guard)</li>
+            <li>Vertex AI retry logic — current fallback just downloads the intro clip, not a real retry</li>
+            <li>CDN for video delivery — GCS signed URLs work but are slow for cross-region users</li>
+        </ul>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Todo</span>
+        </div>
+        <h2>App Store Launch</h2>
+        <ul>
+            <li>App Store screenshots (all required device sizes)</li>
+            <li>App preview video</li>
+            <li>App Store description + keywords</li>
+            <li>Privacy policy URL (required by Apple)</li>
+            <li>Support URL</li>
+            <li>Age rating questionnaire</li>
+            <li>Submit for App Store review</li>
+        </ul>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Todo</span>
+        </div>
+        <h2>Growth & Beta Management</h2>
+        <ul>
+            <li>Dashboard to manage beta invite codes (create, revoke, track usage)</li>
+            <li>User feedback mechanism in-app</li>
+            <li>Analytics — track manifest submissions, completion rate, subscription conversions</li>
+            <li>Push notifications — "Your video is ready" when generation completes</li>
+            <li>Multi-region support (currently US-only on Cloud Run)</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- ── FINANCIALS ─────────────────────────────────── -->
+    <div class="section-header">
+        <h1>Financial Analysis</h1>
+        <span class="pill red">Needs resolution</span>
+    </div>
+
+    <div class="phase blocked">
+        <div class="tags">
+            <span class="tag status">Issue</span>
+            <span class="tag date">Unresolved</span>
+        </div>
+        <h2>Baseline Cost Problem — ~$2.50/day with zero users</h2>
+        <ul>
+            <li class="critical"><strong>Root cause:</strong> API service set to <code>min-instances=1</code> — one vCPU runs 24/7 even with no traffic</li>
+            <li class="critical">Cloud Run always-on cost: ~$2.07/day CPU + ~$0.11/day memory = <strong>~$2.20/day base</strong></li>
+            <li class="critical">At current config this is <strong>~$67/month before a single video is generated</strong></li>
+            <li class="warn">Options to fix: (1) drop to <code>min-instances=0</code> and accept ~3s cold starts, or (2) keep warm but use a smaller instance, or (3) move to Cloud Run v2 CPU-always-allocated only during requests</li>
+            <li><strong>Decision needed</strong> — cold starts on the API are tolerable (it's just the Django boot, not video generation); the worker already runs at <code>min-instances=0</code></li>
+        </ul>
+        <pre style="color:#f87171;">
+# Current deploy setting causing the burn:
+--min-instances 1   ← this keeps a vCPU running at all times
+
+# Fix (drop in deploy.sh, API section):
+--min-instances 0   ← cold start ~2-3s, saves ~$67/month at zero-user stage</pre>
+    </div>
+
+    <div class="phase active">
+        <div class="tags">
+            <span class="tag status">Analysis</span>
+        </div>
+        <h2>Cost Per Video (needs real numbers from GCP billing)</h2>
+        <ul>
+            <li><strong>Vertex AI Veo 3.1</strong> — charged per second of video generated. ~8s clip = TBD. <em>Check GCP billing console for actuals.</em></li>
+            <li><strong>Cloud Run Worker</strong> — 4GB RAM, 2 vCPU, ~90s per job</li>
+            <li style="padding-left:16px;">CPU: 2 vCPU × 90s × $0.00002400 = <strong>~$0.0043</strong></li>
+            <li style="padding-left:16px;">Memory: 4GB × 90s × $0.00000250 = <strong>~$0.0009</strong></li>
+            <li><strong>Cloud Tasks</strong> — $0.40 per million tasks = effectively $0</li>
+            <li><strong>GCS storage</strong> — ~$0.02/GB/month. A 30s 4K video ~300MB = ~$0.006/video/month stored</li>
+            <li><strong>Neon DB</strong> — free tier until ~$19/month at scale</li>
+            <li class="warn"><strong>Estimated cost per video: $0.005 + Vertex AI cost</strong> — get Vertex actuals from billing before setting price</li>
+        </ul>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Model</span>
+        </div>
+        <h2>Revenue Model & Unit Economics</h2>
+        <ul>
+            <li><strong>Current model:</strong> Monthly subscription, 1 video/month included</li>
+            <li><strong>Apple takes 30%</strong> (15% after first year in Small Business Program)</li>
+        </ul>
+        <table style="width:100%;border-collapse:collapse;margin-top:12px;color:#aaa;font-size:0.88rem;">
+            <thead>
+                <tr style="color:#fff;border-bottom:1px solid #333;">
+                    <th style="text-align:left;padding:8px 4px;">Price</th>
+                    <th style="text-align:right;padding:8px 4px;">Apple Cut (30%)</th>
+                    <th style="text-align:right;padding:8px 4px;">Your Revenue</th>
+                    <th style="text-align:right;padding:8px 4px;">Users to cover $67/mo base</th>
+                    <th style="text-align:right;padding:8px 4px;">Users to cover $67 + $0.50/video</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">$2.99</td>
+                    <td style="text-align:right;padding:8px 4px;">$0.90</td>
+                    <td style="text-align:right;padding:8px 4px;">$2.09</td>
+                    <td style="text-align:right;padding:8px 4px;">32 users</td>
+                    <td style="text-align:right;padding:8px 4px;">42 users</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">$4.99</td>
+                    <td style="text-align:right;padding:8px 4px;">$1.50</td>
+                    <td style="text-align:right;padding:8px 4px;">$3.49</td>
+                    <td style="text-align:right;padding:8px 4px;">20 users</td>
+                    <td style="text-align:right;padding:8px 4px;">23 users</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">$9.99</td>
+                    <td style="text-align:right;padding:8px 4px;">$3.00</td>
+                    <td style="text-align:right;padding:8px 4px;">$6.99</td>
+                    <td style="text-align:right;padding:8px 4px;">10 users</td>
+                    <td style="text-align:right;padding:8px 4px;">11 users</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 4px;">$14.99</td>
+                    <td style="text-align:right;padding:8px 4px;">$4.50</td>
+                    <td style="text-align:right;padding:8px 4px;">$10.49</td>
+                    <td style="text-align:right;padding:8px 4px;">7 users</td>
+                    <td style="text-align:right;padding:8px 4px;">7 users</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="color:#555;font-size:0.8rem;margin-top:10px;">* Vertex AI cost per video is estimated at $0.50 — verify from GCP billing before finalizing. If $0 base cost (min-instances=0), break-even drops significantly.</p>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Projections</span>
+        </div>
+        <h2>Monthly P&L at Various User Counts</h2>
+        <table style="width:100%;border-collapse:collapse;margin-top:12px;color:#aaa;font-size:0.88rem;">
+            <thead>
+                <tr style="color:#fff;border-bottom:1px solid #333;">
+                    <th style="text-align:left;padding:8px 4px;">Subscribers</th>
+                    <th style="text-align:right;padding:8px 4px;">Gross Revenue ($4.99)</th>
+                    <th style="text-align:right;padding:8px 4px;">After Apple (70%)</th>
+                    <th style="text-align:right;padding:8px 4px;">Est. Infra Cost</th>
+                    <th style="text-align:right;padding:8px 4px;">Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">0</td>
+                    <td style="text-align:right;padding:8px 4px;">$0</td>
+                    <td style="text-align:right;padding:8px 4px;">$0</td>
+                    <td style="text-align:right;padding:8px 4px;">$67</td>
+                    <td style="text-align:right;padding:8px 4px;color:#f87171;">-$67</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">10</td>
+                    <td style="text-align:right;padding:8px 4px;">$50</td>
+                    <td style="text-align:right;padding:8px 4px;">$35</td>
+                    <td style="text-align:right;padding:8px 4px;">~$72</td>
+                    <td style="text-align:right;padding:8px 4px;color:#f87171;">-$37</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">25</td>
+                    <td style="text-align:right;padding:8px 4px;">$125</td>
+                    <td style="text-align:right;padding:8px 4px;">$87</td>
+                    <td style="text-align:right;padding:8px 4px;">~$80</td>
+                    <td style="text-align:right;padding:8px 4px;color:#facc15;">+$7</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">50</td>
+                    <td style="text-align:right;padding:8px 4px;">$250</td>
+                    <td style="text-align:right;padding:8px 4px;">$175</td>
+                    <td style="text-align:right;padding:8px 4px;">~$92</td>
+                    <td style="text-align:right;padding:8px 4px;color:#4ade80;">+$83</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1a1a1a;">
+                    <td style="padding:8px 4px;">100</td>
+                    <td style="text-align:right;padding:8px 4px;">$499</td>
+                    <td style="text-align:right;padding:8px 4px;">$349</td>
+                    <td style="text-align:right;padding:8px 4px;">~$117</td>
+                    <td style="text-align:right;padding:8px 4px;color:#4ade80;">+$232</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px 4px;">500</td>
+                    <td style="text-align:right;padding:8px 4px;">$2,495</td>
+                    <td style="text-align:right;padding:8px 4px;">$1,747</td>
+                    <td style="text-align:right;padding:8px 4px;">~$317</td>
+                    <td style="text-align:right;padding:8px 4px;color:#4ade80;">+$1,430</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="color:#555;font-size:0.8rem;margin-top:10px;">* Infra cost scales with users due to Vertex AI per-video cost. Fix <code>min-instances=0</code> first — it drops the base from $67 to ~$0.</p>
+    </div>
+
+    <div class="phase todo">
+        <div class="tags">
+            <span class="tag status">Action Items</span>
+        </div>
+        <h2>Financial To-Dos</h2>
+        <ul>
+            <li class="critical">Fix <code>min-instances=1</code> → <code>0</code> in <code>deploy.sh</code> to eliminate $67/month idle cost</li>
+            <li class="critical">Pull actual Vertex AI cost per video from GCP Billing console — update projections above</li>
+            <li class="warn">Decide on subscription price before App Store submission</li>
+            <li class="warn">Apply for Apple Small Business Program (reduces cut from 30% → 15% under $1M/year)</li>
+            <li>Set a GCP billing alert at $50/month so cost spikes don't go unnoticed</li>
+            <li>Model a "credits" alternative — sell packs of videos instead of monthly subscription</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- ── KNOWN ISSUES ─────────────────────────────────── -->
+    <div class="section-header">
+        <h1>Known Issues</h1>
+        <span class="pill red">Needs attention</span>
+    </div>
+
+    <div class="phase blocked">
+        <div class="tags">
+            <span class="tag status">Issues</span>
+        </div>
+        <h2>Open Items</h2>
+        <ul>
+            <li class="critical"><strong>No StoreKit receipt validation</strong> — backend accepts any transaction ID from client; trivially bypassable</li>
+            <li class="critical"><strong>No rate limiting</strong> — registration and manifest endpoints are wide open to abuse</li>
+            <li class="warn"><strong>DEBUG=True in .env</strong> — must be <code>False</code> before App Store launch (exposes stack traces)</li>
+            <li class="warn"><strong>Hardcoded API URL</strong> in iOS code and backend — should be an environment variable or build config</li>
+            <li class="warn"><strong>Celery still in <code>requirements.txt</code></strong> — bloats Docker image; unused since switching to Cloud Tasks</li>
+            <li class="warn"><strong>Subscription quota reset</strong> happens in-request — a race condition at month boundary could reset at wrong time</li>
+            <li><strong>Face ID toggle</strong> — backend doesn't enforce it, only the client does</li>
+            <li><strong>GCS credentials path hardcoded</strong> to <code>/app/google_credentials.json</code> in <code>engine.py</code></li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- ── TECH STACK REF ─────────────────────────────────── -->
+    <div class="section-header">
+        <h1>Tech Stack</h1>
+    </div>
+
+    <div class="phase done" style="border-left-color: #333;">
+        <h2>Backend</h2>
+        <ul>
+            <li><strong>Django 6.0.2</strong> + Django Ninja — API framework</li>
+            <li><strong>SimpleJWT</strong> — Token auth</li>
+            <li><strong>Gunicorn</strong> — WSGI server (2 workers, 60s timeout on API; 1hr on worker)</li>
+            <li><strong>Neon Serverless PostgreSQL</strong> — Database</li>
+            <li><strong>Google Vertex AI (Veo 3.1)</strong> — Video generation</li>
+            <li><strong>Google Cloud Storage</strong> — Video + template storage</li>
+            <li><strong>Google Cloud Tasks</strong> — Async job queue</li>
+            <li><strong>Google Cloud Run</strong> — Container hosting (API + Worker)</li>
+            <li><strong>MoviePy 1.0.3</strong> — Video stitching (intro → AI clip → outro)</li>
+        </ul>
+    </div>
+
+    <div class="phase done" style="border-left-color: #333;">
+        <h2>iOS</h2>
+        <ul>
+            <li><strong>SwiftUI</strong> — UI framework</li>
+            <li><strong>StoreKit 2</strong> — In-app subscriptions</li>
+            <li><strong>LocalAuthentication</strong> — Face ID</li>
+            <li><strong>URLSession</strong> + <strong>Combine</strong> — Networking + reactive state</li>
+            <li><strong>Keychain</strong> — Secure token storage</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- ── DEPLOY REF ─────────────────────────────────── -->
+    <div class="section-header">
+        <h1>Deploy Reference</h1>
+    </div>
+
+    <div class="phase done" style="border-left-color: #333;">
+        <h2>Deploy to Cloud Run</h2>
+        <pre>cd backend
+
+./deploy.sh         # Deploy both API + Worker
+./deploy.sh api     # API only (512MB, min 1 instance)
+./deploy.sh worker  # Worker only (4GB RAM, 2 CPUs, max 5)</pre>
+        <ul>
+            <li>Requires <code>gcloud auth login</code> and Artifact Registry access</li>
+            <li>Health check: <code>curl https://manifest-me-api-79704250837.us-central1.run.app/api/health/</code></li>
+        </ul>
+    </div>
+
+    <div class="phase done" style="border-left-color: #333;">
+        <h2>Run DB Migrations</h2>
+        <pre>cd backend
 source venv/bin/activate
-
-# Point at your Neon DB (same value as Cloud Run secret)
-export DATABASE_URL="postgres://USER:PASSWORD@HOST/neondb?sslmode=require"
-
+export DATABASE_URL="your-neon-connection-string"
 python manage.py migrate</pre>
-        <ul>
-            <li>This creates the <code>Subscription</code> table in Neon — required before deploying new API code</li>
-            <li>Safe to run multiple times (Django skips already-applied migrations)</li>
-        </ul>
     </div>
 
-    <div class="phase done">
-        <span class="tag">Step 2 — Deploy to Cloud Run</span>
-        <h2>Deploy API + Worker with new settings</h2>
-        <p style="color:#aaa; font-size:0.9rem;">The new <code>deploy.sh</code> sets the correct memory, CPU, and min-instance counts automatically.</p>
-        <pre style="background:#000;padding:16px;border-radius:8px;overflow-x:auto;color:#4ade80;font-size:0.85rem;">
-cd backend
+    <footer>&copy; 2026 Manifest Me &mdash; Internal Use Only</footer>
 
-# Deploy both services
-./deploy.sh
-
-# Or deploy individually:
-./deploy.sh api     # API only  (min 1 instance, 512MB)
-./deploy.sh worker  # Worker only (4GB RAM, 2 CPUs, max 5 instances)</pre>
-        <ul>
-            <li>You must have <code>gcloud</code> CLI installed and authenticated (<code>gcloud auth login</code>)</li>
-            <li>Artifact Registry must have the <code>manifest-me</code> repo — create it if it doesn't exist:<br>
-                <code style="font-size:0.8rem;">gcloud artifacts repositories create manifest-me --repository-format=docker --location=us-central1</code>
-            </li>
-            <li>After deploy, verify the health check responds: <code>curl https://manifest-me-api-79704250837.us-central1.run.app/api/health/</code></li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Step 3 — App Store Connect</span>
-        <h2>Create the Subscription Product</h2>
-        <ul>
-            <li>Go to <strong>App Store Connect → Your App → Subscriptions</strong></li>
-            <li>Create a subscription group (e.g. "ManifestMe Premium")</li>
-            <li>Add a monthly product with ID exactly: <code>com.manifestme.monthly</code></li>
-            <li>Set price (e.g. $4.99/mo), add localization, submit for review</li>
-            <li>In Xcode: add <strong>In-App Purchase</strong> capability under Signing &amp; Capabilities</li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Step 4 — Xcode: Face ID permission</span>
-        <h2>Add NSFaceIDUsageDescription</h2>
-        <ul>
-            <li>In Xcode, select the <strong>ManifestMe</strong> target → <strong>Info</strong> tab</li>
-            <li>Click <strong>+</strong> and add key: <code>Privacy - Face ID Usage Description</code></li>
-            <li>Value: <em>ManifestMe uses Face ID to keep your manifestations private.</em></li>
-        </ul>
-    </div>
-
-    <hr style="border-color: #222; margin: 60px 0 40px;">
-    <h1>Testing Plan</h1>
-
-    <div class="phase done">
-        <span class="tag">Completed: Test 1 — Health Check &amp; Cold Start</span>
-        <h2>Backend is warm and responding</h2>
-        <pre style="background:#000;padding:16px;border-radius:8px;overflow-x:auto;color:#4ade80;font-size:0.85rem;">
-curl https://manifest-me-api-79704250837.us-central1.run.app/api/health/
-# Expected: {"status": "ok"} in under 2 seconds</pre>
-        <ul>
-            <li>Run it twice — second call should be just as fast (min-instances=1 keeps it warm)</li>
-            <li>If slow on first call, check Cloud Run console that min-instances was applied</li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Completed: Test 2 — Subscription Quota (Backend)</span>
-        <h2>Manifest endpoint rejects unsubscribed users</h2>
-        <pre style="background:#000;padding:16px;border-radius:8px;overflow-x:auto;color:#4ade80;font-size:0.85rem;">
-# 1. Get a token (login)
-TOKEN=$(curl -s -X POST \
-  https://manifest-me-api-79704250837.us-central1.run.app/api/login/ \
-  -H "Content-Type: application/json" \
-  -d '{"username":"your@email.com","password":"yourpassword"}' \
-  | python3 -c "import sys,json; print(json.load(sys.stdin)['access'])")
-
-# 2. Check subscription status
-curl -H "Authorization: Bearer $TOKEN" \
-  https://manifest-me-api-79704250837.us-central1.run.app/api/subscription/status/
-# Expected: {"is_active": false, "videos_remaining": 0}
-
-# 3. Try to manifest without a subscription
-curl -X POST -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"prompt":"I am thriving","theme":"beach"}' \
-  https://manifest-me-api-79704250837.us-central1.run.app/api/manifest/
-# Expected: 403 {"error": "subscription_required"}</pre>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Test 3 — Session Fix (401 auto-refresh)</span>
-        <h2>App recovers from an expired token without logging you out</h2>
-        <ul>
-            <li>Build and run the app in Xcode on a simulator or device</li>
-            <li>Log in normally — you should see the Gallery tab load your videos</li>
-            <li><strong>Simulate expired token:</strong> In Xcode, pause the app, open the LLDB console at the bottom, and run:<br>
-                <code style="font-size:0.8rem;">e KeychainHelper.standard.save(token: "expired.invalid.token")</code><br>
-                Then resume the app
-            </li>
-            <li>Navigate to the Gallery tab (which calls <code>fetchVideos</code>)</li>
-            <li><strong>Expected result:</strong> App silently refreshes the token using the stored refresh token and videos load normally — you are NOT logged out</li>
-            <li>If the refresh token is also expired (e.g. after many days), the app should show the Login screen cleanly</li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Test 4 — Onboarding</span>
-        <h2>Shown once on first install, never again</h2>
-        <ul>
-            <li>Delete the app from the simulator/device</li>
-            <li>Build and install fresh from Xcode</li>
-            <li><strong>Expected:</strong> 4-screen onboarding appears (Welcome → How It Works → Photo Permission → Get Started)</li>
-            <li>Tap through all screens and tap "Get Started" — you should land on the Login screen</li>
-            <li>Log in, use the app, then kill and reopen</li>
-            <li><strong>Expected:</strong> Onboarding does NOT appear again — you go straight to the app</li>
-            <li>To reset onboarding during testing, run in LLDB: <code>e UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")</code></li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Test 5 — Face ID</span>
-        <h2>App locks on foreground if enabled</h2>
-        <ul>
-            <li>Log in on a physical device (Face ID only works on real hardware)</li>
-            <li>Go to Profile tab → toggle on "Require Face ID on open"</li>
-            <li>Face ID prompt appears immediately to confirm — authenticate</li>
-            <li>Press the Home button to background the app</li>
-            <li>Reopen the app from the dock</li>
-            <li><strong>Expected:</strong> Black lock screen with Face ID icon appears, then automatically prompts Face ID</li>
-            <li>Authenticate successfully → lock screen dismisses, app is usable</li>
-            <li>Test failure: cover your face / decline — "Unlock with Face ID" button should appear to retry</li>
-            <li>Toggle off in Profile → background and reopen → <strong>no lock screen</strong></li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Test 6 — StoreKit 2 Subscription (Sandbox)</span>
-        <h2>Purchase flow, paywall, and quota</h2>
-        <ul>
-            <li>In Xcode: <strong>Product → Scheme → Edit Scheme → Run → Options</strong> → set StoreKit Configuration to your <code>.storekit</code> file (create one under File → New → StoreKit Configuration if needed — add the <code>com.manifestme.monthly</code> product there)</li>
-            <li>Build and run on simulator or device</li>
-            <li>Log in, go to Create tab, select a theme</li>
-            <li>Enter a prompt and tap "Start Manifesting"</li>
-            <li><strong>Expected (unsubscribed):</strong> Paywall sheet slides up showing price and features</li>
-            <li>Tap "Subscribe" → StoreKit sandbox purchase dialog appears → confirm</li>
-            <li><strong>Expected:</strong> Paywall dismisses, manifest starts, progress bar appears</li>
-            <li>Try to create a second video in the same month</li>
-            <li><strong>Expected:</strong> Error toast "You've used your video for this month"</li>
-            <li>Test "Restore Purchases" button — should reactivate the subscription</li>
-        </ul>
-    </div>
-
-    <div class="phase done">
-        <span class="tag">Test 7 — Worker OOM (Cloud Run)</span>
-        <h2>Video generation completes without crashing</h2>
-        <ul>
-            <li>Subscribe (or temporarily comment out the subscription check in <code>manifest_video</code> view for testing)</li>
-            <li>Submit a real manifest request from the app</li>
-            <li>Go to <strong>Google Cloud Console → Cloud Run → manifest-me-worker → Logs</strong></li>
-            <li><strong>Expected:</strong> Logs show <code>[worker] START</code> → <code>CALLING VERTEX</code> → <code>DONE</code> with no memory errors</li>
-            <li>If you see <code>Memory limit exceeded</code> or container exits with code 137, the 4GB setting did not apply — re-run <code>./deploy.sh worker</code> and verify in the Cloud Run console under Configuration that Memory is set to 4Gi</li>
-        </ul>
-    </div>
-
-    <p style="text-align: center; margin-top: 50px; color: #444;">&copy; 2026 Manifest Me. Internal Use Only.</p>
 </body>
 </html>
