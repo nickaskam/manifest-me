@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investor Strategy | Manifest Me</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #000;
+            color: #eee;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 { border-bottom: 1px solid #222; padding-bottom: 16px; margin-bottom: 8px; font-size: 1.6rem; }
+        h2 { color: #fff; margin: 0 0 10px; font-size: 1.1rem; }
+        h3 { color: #aaa; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 8px; }
+        p.sub { color: #555; margin-top: -4px; margin-bottom: 32px; font-size: 0.9rem; }
+
+        .card {
+            background: #0d0d0d;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #222;
+        }
+        .card.green  { border-left: 4px solid #4ade80; }
+        .card.yellow { border-left: 4px solid #facc15; }
+        .card.blue   { border-left: 4px solid #60a5fa; }
+        .card.purple { border-left: 4px solid #c084fc; }
+        .card.gray   { border-left: 4px solid #444; }
+
+        .tag {
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 1px;
+            font-weight: 700;
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 8px;
+        }
+        .green  .tag.tier { color: #4ade80; }
+        .yellow .tag.tier { color: #facc15; }
+        .blue   .tag.tier { color: #60a5fa; }
+        .purple .tag.tier { color: #c084fc; }
+        .gray   .tag.tier { color: #888; }
+
+        ul { padding-left: 20px; color: #aaa; margin: 10px 0 0; }
+        li { margin-bottom: 7px; }
+        li.critical { color: #f87171; }
+        li.warn     { color: #facc15; }
+        li.good     { color: #4ade80; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+        @media (max-width: 700px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        .stat-box {
+            background: #0d0d0d;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+        }
+        .stat-box .number { font-size: 1.8rem; font-weight: 700; }
+        .stat-box .label  { font-size: 0.72rem; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .stat-box.green  .number { color: #4ade80; }
+        .stat-box.yellow .number { color: #facc15; }
+        .stat-box.blue   .number { color: #60a5fa; }
+        .stat-box.purple .number { color: #c084fc; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; color: #aaa; margin-top: 12px; }
+        thead tr { border-bottom: 1px solid #333; color: #fff; }
+        tbody tr { border-bottom: 1px solid #1a1a1a; }
+        th, td { padding: 9px 6px; text-align: left; }
+        td.right, th.right { text-align: right; }
+
+        .person-card {
+            background: #0d0d0d;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .person-card .name { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .person-card .title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .person-card .title.ceo     { color: #4ade80; }
+        .person-card .title.cmo     { color: #60a5fa; }
+        .person-card .title.cbo     { color: #c084fc; }
+        .person-card ul { font-size: 0.88rem; }
+
+        .equity-bar {
+            display: flex;
+            height: 32px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 16px 0 8px;
+        }
+        .equity-bar .seg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #000;
+        }
+
+        code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            color: #a3e635;
+        }
+
+        .pill {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .pill.green  { background: #14532d; color: #4ade80; }
+        .pill.yellow { background: #422006; color: #facc15; }
+        .pill.blue   { background: #1e3a5f; color: #60a5fa; }
+        .pill.purple { background: #3b0764; color: #c084fc; }
+        .pill.gray   { background: #1c1c1c; color: #666; }
+
+        .section-header { margin: 60px 0 24px; display: flex; align-items: center; gap: 14px; }
+        .section-header h1 { border: none; margin: 0; padding: 0; }
+
+        hr { border: none; border-top: 1px solid #1a1a1a; margin: 50px 0; }
+        footer { text-align: center; margin-top: 60px; color: #333; font-size: 0.8rem; }
+
+        .note { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 14px 18px; color: #666; font-size: 0.85rem; margin-top: 12px; }
+        .note strong { color: #888; }
+    </style>
+</head>
+<body>
+
+    <h1>Manifest Me — Investor & Growth Strategy</h1>
+    <p class="sub">Internal use only &mdash; Last updated April 18, 2026</p>
+
+    <!-- SNAPSHOT -->
+    <div class="grid-4" style="margin-bottom: 40px;">
+        <div class="stat-box green">
+            <div class="number">$0</div>
+            <div class="label">Raised</div>
+        </div>
+        <div class="stat-box yellow">
+            <div class="number">3</div>
+            <div class="label">Founders</div>
+        </div>
+        <div class="stat-box blue">
+            <div class="number">MVP</div>
+            <div class="label">Product stage</div>
+        </div>
+        <div class="stat-box purple">
+            <div class="number">$1.5–3M</div>
+            <div class="label">Est. pre-money value</div>
+        </div>
+    </div>
+
+    <!-- ── FOUNDING TEAM ───────────────────────────── -->
+    <div class="section-header">
+        <h1>Founding Team</h1>
+        <span class="pill green">3 Founders</span>
+    </div>
+
+    <div class="grid-3">
+
+        <div class="person-card">
+            <div class="name">Nick</div>
+            <div class="title ceo">CEO &amp; Co-Founder</div>
+            <ul>
+                <li>Built the entire product (iOS + backend)</li>
+                <li>Technical + operational lead</li>
+                <li>Drives product roadmap and engineering decisions</li>
+            </ul>
+        </div>
+
+        <div class="person-card">
+            <div class="name">Paul</div>
+            <div class="title cmo">Chief Revenue Officer &amp; Co-Founder</div>
+            <ul>
+                <li>Drives sales, partnerships, and revenue strategy</li>
+                <li>Owns B2B outreach and enterprise/wellness market angle</li>
+                <li>Product direction</li>
+            </ul>
+            <div class="note" style="margin-top:10px;"><strong>Note on title:</strong> "Head of Branding" undersells Paul's revenue-driving role. Consider: <em>Chief Revenue Officer</em> or <em>Head of Sales &amp; Brand</em>.</div>
+        </div>
+
+        <div class="person-card">
+            <div class="name">Sandrine</div>
+            <div class="title cbo">Chief Growth Officer &amp; Co-Founder</div>
+            <ul>
+                <li>Drives user acquisition strategy and channel execution</li>
+                <li>Deep network for influencer &amp; brand partnerships</li>
+                <li>Owns paid and organic growth at scale</li>
+            </ul>
+            <div class="note" style="margin-top:10px;"><strong>Note on title:</strong> CGO or CMO better reflects that Sandrine's job is growing the user base. Consider: <em>Chief Growth Officer</em> or <em>Co-Founder &amp; CMO</em>.</div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <!-- ── EQUITY ───────────────────────────── -->
+    <div class="section-header">
+        <h1>Equity Structure</h1>
+        <span class="pill yellow">Decision needed</span>
+    </div>
+
+    <p style="color:#aaa;">Paul and Sandrine originated the idea. Nick joined to build it. This changes the framing — idea + domain expertise deserves credit alongside execution. Three scenarios are presented below. There is no universally "correct" answer; the right split is the one all three founders feel is fair and can commit to long-term.</p>
+
+    <div class="card yellow">
+        <div class="tags"><span class="tag tier">Option A — Idea Premium</span></div>
+        <h2>Idea originators hold majority</h2>
+        <p style="color:#aaa;font-size:0.875rem;margin:6px 0 10px;">Best if Paul and Sandrine's vision, network, and domain knowledge are viewed as the primary value drivers.</p>
+
+        <div class="equity-bar">
+            <div class="seg" style="width:29%;background:#60a5fa;">Paul 29%</div>
+            <div class="seg" style="width:29%;background:#c084fc;">Sandrine 29%</div>
+            <div class="seg" style="width:28%;background:#4ade80;">Nick 28%</div>
+            <div class="seg" style="width:14%;background:#333;color:#888;">Pool 14%</div>
+        </div>
+
+        <table>
+            <thead><tr><th>Person</th><th class="right">Equity</th><th>Rationale</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Paul</strong></td><td class="right">29%</td><td>Originated the idea, owns growth strategy</td></tr>
+                <tr><td><strong>Sandrine</strong></td><td class="right">29%</td><td>Originated the idea, owns revenue and brand</td></tr>
+                <tr><td><strong>Nick</strong></td><td class="right">28%</td><td>Built the entire product — execution is the company's current asset</td></tr>
+                <tr style="color:#555;"><td><strong>Option Pool</strong></td><td class="right">14%</td><td>Future hires</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card blue">
+        <div class="tags"><span class="tag tier">Option B — Equal Split</span></div>
+        <h2>All founders equal</h2>
+        <p style="color:#aaa;font-size:0.875rem;margin:6px 0 10px;">Simplest option. Avoids any perception of hierarchy. Works best when all three are fully committed from day one going forward.</p>
+
+        <div class="equity-bar">
+            <div class="seg" style="width:29%;background:#4ade80;">Nick 29%</div>
+            <div class="seg" style="width:29%;background:#60a5fa;">Paul 29%</div>
+            <div class="seg" style="width:29%;background:#c084fc;">Sandrine 29%</div>
+            <div class="seg" style="width:13%;background:#333;color:#888;">Pool 13%</div>
+        </div>
+
+        <table>
+            <thead><tr><th>Person</th><th class="right">Equity</th><th>Rationale</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Nick</strong></td><td class="right">29%</td><td>Equal co-founder, execution lead</td></tr>
+                <tr><td><strong>Paul</strong></td><td class="right">29%</td><td>Equal co-founder, growth lead</td></tr>
+                <tr><td><strong>Sandrine</strong></td><td class="right">29%</td><td>Equal co-founder, revenue lead</td></tr>
+                <tr style="color:#555;"><td><strong>Option Pool</strong></td><td class="right">13%</td><td>Future hires</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card green">
+        <div class="tags"><span class="tag tier">Option C — Builder Premium</span></div>
+        <h2>Execution rewarded most heavily</h2>
+        <p style="color:#aaa;font-size:0.875rem;margin:6px 0 10px;">Best if the team agrees the working product is the company's primary asset at this stage and Nick's ongoing technical role is irreplaceable.</p>
+
+        <div class="equity-bar">
+            <div class="seg" style="width:32%;background:#4ade80;">Nick 32%</div>
+            <div class="seg" style="width:27%;background:#60a5fa;">Paul 27%</div>
+            <div class="seg" style="width:27%;background:#c084fc;">Sandrine 27%</div>
+            <div class="seg" style="width:14%;background:#333;color:#888;">Pool 14%</div>
+        </div>
+
+        <table>
+            <thead><tr><th>Person</th><th class="right">Equity</th><th>Rationale</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Nick</strong></td><td class="right">32%</td><td>Built the product; execution is what exists today</td></tr>
+                <tr><td><strong>Paul</strong></td><td class="right">27%</td><td>Co-founder, growth lead</td></tr>
+                <tr><td><strong>Sandrine</strong></td><td class="right">27%</td><td>Co-founder, revenue lead</td></tr>
+                <tr style="color:#555;"><td><strong>Option Pool</strong></td><td class="right">14%</td><td>Future hires</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card gray">
+        <div class="tags"><span class="tag tier">Vesting & Process</span></div>
+        <h2>How to do this properly</h2>
+        <ul>
+            <li class="critical"><strong>Agree before any external money.</strong> Once investors are in, changing the cap table is painful and signals internal conflict.</li>
+            <li class="warn"><strong>4-year vesting, 1-year cliff for all founders</strong> — standard in every term sheet. Protects everyone if someone leaves early.</li>
+            <li><strong>The honest framework:</strong> ask each founder privately "what split feels fair?" — if answers are within 5%, go equal. If not, use Option A or C.</li>
+            <li>Use <em>Carta</em> or <em>Pulley</em> to model the cap table before signing anything. Both free at early stage.</li>
+            <li>Consider a <strong>dynamic equity</strong> model (Slicing Pie) if commitment levels are still being determined — each founder earns equity proportional to time contributed.</li>
+            <li>Get an attorney to draft the actual agreements — not expensive at this stage (~$1,500–3,000 for a standard founder package).</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- ── FUNDING SCENARIOS ───────────────────────────── -->
+    <div class="section-header">
+        <h1>Funding Scenarios</h1>
+        <span class="pill blue">4 tiers</span>
+    </div>
+
+    <!-- $0 -->
+    <div class="card green">
+        <div class="tags">
+            <span class="tag tier">Tier 0 — Bootstrapped</span>
+            <span class="tag" style="color:#555;">$0 raised</span>
+        </div>
+        <h2>Default Ramen Mode</h2>
+        <p style="color:#aaa;font-size:0.9rem;margin:8px 0 12px;">Run lean, prove the concept, get to 100 paying users before spending a dollar on growth.</p>
+
+        <h3>Team</h3>
+        <ul>
+            <li>Nick — product, engineering, ops (full time)</li>
+            <li>Paul — organic content, influencer outreach, partnerships (part time / sweat)</li>
+            <li>Sandrine — sales outreach, brand, App Store presence (part time / sweat)</li>
+        </ul>
+
+        <h3>Strategy</h3>
+        <ul>
+            <li class="good">Fix <code>min-instances=0</code> + migrate to Veo Lite → get infra cost to near $0/month</li>
+            <li class="good">App Store launch — open to public, remove invite-only gate</li>
+            <li>Paul leverages agency network for organic creator partnerships in manifestation/law of attraction space</li>
+            <li>Sandrine builds brand presence on TikTok + Instagram — this community spends freely</li>
+            <li>Nick runs the App Store listing, ASO (App Store Optimization), screenshots</li>
+            <li>Goal: 100 paying subscribers within 60 days of launch</li>
+            <li>Use those 100 users as case studies + social proof for a raise</li>
+        </ul>
+
+        <h3>Monthly Burn</h3>
+        <ul>
+            <li>Infra: ~$5–20/month (near-zero with Lite + min-instances=0)</li>
+            <li>Apple developer account: $99/year</li>
+            <li>Total: <strong>&lt;$30/month</strong></li>
+        </ul>
+
+        <h3>Milestone to unlock Tier 1</h3>
+        <ul>
+            <li class="good">100 paying subscribers + measurable retention (users coming back month 2)</li>
+        </ul>
+    </div>
+
+    <!-- $50K -->
+    <div class="card yellow">
+        <div class="tags">
+            <span class="tag tier">Tier 1 — Friends &amp; Family</span>
+            <span class="tag" style="color:#555;">$50K raised</span>
+        </div>
+        <h2>First Dollars — Prove Distribution</h2>
+        <p style="color:#aaa;font-size:0.9rem;margin:8px 0 12px;">Small raise from personal network. No institutional investors yet. Use it entirely for user acquisition — not salaries.</p>
+
+        <h3>Team</h3>
+        <ul>
+            <li>Nick — CEO, full time (small stipend if needed)</li>
+            <li>Paul — CGO, full time or 80% (owns all paid + organic channels)</li>
+            <li>Sandrine — CRO, part time (sales outreach + brand)</li>
+            <li>1 part-time contractor: video editor / UGC creator ($1–2K/month)</li>
+        </ul>
+
+        <h3>Budget Allocation</h3>
+        <table>
+            <thead><tr><th>Category</th><th class="right">Amount</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Paid UA (Meta/TikTok)</td><td class="right">$20,000</td><td>Nick runs app install campaigns — his core skill</td></tr>
+                <tr><td>Influencer partnerships</td><td class="right">$12,000</td><td>Paul's network — manifestation/LOA creators, micro-influencers</td></tr>
+                <tr><td>UGC content creation</td><td class="right">$6,000</td><td>3 months of content showing the app in use</td></tr>
+                <tr><td>Legal (incorporation, equity docs)</td><td class="right">$5,000</td><td>Delaware C-Corp, cap table, founder agreements</td></tr>
+                <tr><td>App Store + ASO tools</td><td class="right">$3,000</td><td>AppFollow, screenshots, A/B test listings</td></tr>
+                <tr><td>Runway / misc</td><td class="right">$4,000</td><td>Buffer for tools, infra, unexpected costs</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Strategy</h3>
+        <ul>
+            <li>Meta app install campaigns targeting law of attraction, manifestation, vision board audiences</li>
+            <li>TikTok organic content showing real video outputs — this category goes viral easily</li>
+            <li>Influencer seeding: gift free months to 10–20 mid-tier creators in the spiritual wellness space</li>
+            <li>Apply to <strong>YC, Techstars, or a wellness-focused accelerator</strong> — 100 paying users + a raise = a much stronger application</li>
+        </ul>
+
+        <h3>Equity given up</h3>
+        <ul>
+            <li>Friends &amp; family: typically <strong>5–10%</strong> on a SAFE note at $1.5–2M cap</li>
+            <li>Dilution is manageable at this stage — don't give up board seats</li>
+        </ul>
+
+        <h3>Milestone to unlock Tier 2</h3>
+        <ul>
+            <li class="good">500 paying subscribers + measurable CAC (cost to acquire a user)</li>
+        </ul>
+    </div>
+
+    <!-- $150K -->
+    <div class="card blue">
+        <div class="tags">
+            <span class="tag tier">Tier 2 — Pre-Seed Angel</span>
+            <span class="tag" style="color:#555;">$150K raised</span>
+        </div>
+        <h2>First Institutional Money — Scale What Works</h2>
+        <p style="color:#aaa;font-size:0.9rem;margin:8px 0 12px;">Angel round or small syndicate. By this point you know which channel works. Double down on it.</p>
+
+        <h3>Team</h3>
+        <ul>
+            <li>Nick — CEO, full time salary (~$4–5K/month)</li>
+            <li>Paul — CGO, full time salary (~$4–5K/month)</li>
+            <li>Sandrine — CRO, part-to-full time (~$3K/month)</li>
+            <li>1 contract iOS/backend engineer ($5–7K/month, part time) — frees Nick to focus on CEO work</li>
+        </ul>
+
+        <h3>Budget Allocation</h3>
+        <table>
+            <thead><tr><th>Category</th><th class="right">Amount</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Founder salaries (6 mo)</td><td class="right">$60,000</td><td>Sustainability — keep the team full-time</td></tr>
+                <tr><td>Paid UA</td><td class="right">$35,000</td><td>Scale the winning channel from Tier 1</td></tr>
+                <tr><td>Contract engineer</td><td class="right">$25,000</td><td>3–4 months part-time — ship faster</td></tr>
+                <tr><td>Influencer / partnerships</td><td class="right">$15,000</td><td>Bigger creators, affiliate program launch</td></tr>
+                <tr><td>PR + App Store feature push</td><td class="right">$8,000</td><td>Pitch Apple editorial for featuring</td></tr>
+                <tr><td>Legal + accounting</td><td class="right">$5,000</td><td>Clean cap table for Series A prep</td></tr>
+                <tr><td>Buffer</td><td class="right">$2,000</td><td>Misc</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Strategy</h3>
+        <ul>
+            <li>Target <strong>App Store feature</strong> — "Apps We Love" in Health &amp; Fitness or Lifestyle dramatically changes install velocity</li>
+            <li>Launch affiliate program — give creators a cut of subscriptions they drive</li>
+            <li>Explore B2B: Sandrine pitches corporate wellness programs (companies buying subscriptions for employees)</li>
+            <li>Prepare a 12-month Series A story: unit economics, retention cohorts, CAC/LTV ratio</li>
+        </ul>
+
+        <h3>Equity given up</h3>
+        <ul>
+            <li>Angel round: typically <strong>8–15%</strong> on a SAFE or priced round at $2–3M cap</li>
+            <li>Consider a lead angel who adds value beyond money (network, domain expertise)</li>
+        </ul>
+
+        <h3>Milestone to unlock Tier 3</h3>
+        <ul>
+            <li class="good">2,000–3,000 paying subscribers + LTV &gt; 3× CAC</li>
+        </ul>
+    </div>
+
+    <!-- $250K -->
+    <div class="card purple">
+        <div class="tags">
+            <span class="tag tier">Tier 3 — Seed Round</span>
+            <span class="tag" style="color:#555;">$250K raised</span>
+        </div>
+        <h2>Seed Stage — Build the Machine</h2>
+        <p style="color:#aaa;font-size:0.9rem;margin:8px 0 12px;">Institutional seed or larger angel syndicate. You've proven the model. Now systematize growth and build toward Series A.</p>
+
+        <h3>Team</h3>
+        <ul>
+            <li>Nick — CEO, full time market salary (~$6–8K/month)</li>
+            <li>Paul — CGO, full time (~$6K/month)</li>
+            <li>Sandrine — CRO, full time (~$5–6K/month)</li>
+            <li><strong>First full-time hire: Senior iOS + Backend Engineer</strong> ($8–10K/month) — Nick moves to full CEO role</li>
+            <li>Part-time: growth marketer or paid UA specialist</li>
+        </ul>
+
+        <h3>Budget Allocation</h3>
+        <table>
+            <thead><tr><th>Category</th><th class="right">Amount</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Founder salaries (12 mo)</td><td class="right">$90,000</td><td>Full team, full time, 12-month runway</td></tr>
+                <tr><td>Engineer hire (6 mo)</td><td class="right">$55,000</td><td>First full-time technical hire</td></tr>
+                <tr><td>Paid UA + growth</td><td class="right">$55,000</td><td>Systematized paid acquisition across 2–3 channels</td></tr>
+                <tr><td>Influencer + affiliate</td><td class="right">$25,000</td><td>Scaled affiliate network in manifestation space</td></tr>
+                <tr><td>PR + events</td><td class="right">$10,000</td><td>Press, podcast appearances, wellness conferences</td></tr>
+                <tr><td>Legal + Series A prep</td><td class="right">$8,000</td><td>Clean data room, investor docs</td></tr>
+                <tr><td>Infra + tools</td><td class="right">$7,000</td><td>Analytics, CRM, staging env, monitoring</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Strategy</h3>
+        <ul>
+            <li>Launch <strong>annual subscription tier</strong> (2 months free) — dramatically improves cash flow and LTV</li>
+            <li>Introduce <strong>video credit packs</strong> — sell 3 or 5 videos for users who want more than 1/month</li>
+            <li>Build <strong>B2B channel</strong> — Sandrine sells to corporate wellness, yoga studios, life coaching platforms</li>
+            <li>International expansion — Paul's agency background likely includes non-US markets</li>
+            <li>Start Series A fundraising process at ~5,000 subscribers with strong retention data</li>
+            <li>Target <strong>$2–4M Series A</strong> at $8–15M pre-money based on ARR multiple</li>
+        </ul>
+
+        <h3>Equity given up</h3>
+        <ul>
+            <li>Seed round: typically <strong>15–20%</strong> on a priced round at $3–5M pre-money</li>
+            <li>May trigger a board seat for lead investor — negotiate carefully</li>
+            <li>Option pool refresh likely required (expand to 15–18% for hiring)</li>
+        </ul>
+
+        <div class="note">
+            <strong>Post-Tier 3 cap table (illustrative):</strong><br><br>
+            Nick ~26% &nbsp;|&nbsp; Paul ~22% &nbsp;|&nbsp; Sandrine ~22% &nbsp;|&nbsp; Option pool ~15% &nbsp;|&nbsp; Seed investors ~15%<br><br>
+            Founders still control the company. This is the target.
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- ── ACCELERATORS ───────────────────────────── -->
+    <div class="section-header">
+        <h1>Accelerator Options</h1>
+        <span class="pill gray">Worth applying</span>
+    </div>
+
+    <div class="card gray">
+        <div class="tags"><span class="tag tier">Programs to Target</span></div>
+        <h2>When to Apply: After 100 paying users</h2>
+        <table>
+            <thead><tr>
+                <th>Program</th>
+                <th>Investment</th>
+                <th>Equity</th>
+                <th>Why it fits</th>
+            </tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Y Combinator</strong></td>
+                    <td>$500K</td>
+                    <td>7%</td>
+                    <td>Best network, strongest signal to future investors</td>
+                </tr>
+                <tr>
+                    <td><strong>Techstars</strong></td>
+                    <td>$120K</td>
+                    <td>6%</td>
+                    <td>Multiple verticals; wellness and consumer tracks</td>
+                </tr>
+                <tr>
+                    <td><strong>a16z START</strong></td>
+                    <td>$750K</td>
+                    <td>~7–10%</td>
+                    <td>a16z consumer + AI focus — strong fit for this product</td>
+                </tr>
+                <tr>
+                    <td><strong>Bain Capital Ventures Scout</strong></td>
+                    <td>Varies</td>
+                    <td>Varies</td>
+                    <td>Consumer AI focus, less dilutive than accelerators</td>
+                </tr>
+                <tr>
+                    <td><strong>Google for Startups</strong></td>
+                    <td>Credits + support</td>
+                    <td>0%</td>
+                    <td>GCP credits offset Vertex AI costs — apply immediately</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="note" style="margin-top:16px;">
+            <strong>Google for Startups</strong> is the easiest win right now — apply at <code>startup.google.com</code>. GCP credits could offset your entire Vertex AI bill for 12 months. No equity given up.
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- ── KEY DECISIONS ───────────────────────────── -->
+    <div class="section-header">
+        <h1>Open Decisions</h1>
+        <span class="pill yellow">Align on these first</span>
+    </div>
+
+    <div class="card yellow">
+        <div class="tags"><span class="tag tier">Founder Alignment Checklist</span></div>
+        <h2>Before raising a dollar, agree on these</h2>
+        <ul>
+            <li class="critical"><strong>Equity split</strong> — get this in writing before any external money. Use Carta or an attorney.</li>
+            <li class="critical"><strong>Vesting schedule</strong> — 4-year, 1-year cliff for all founders. Non-negotiable for institutional investors.</li>
+            <li class="warn"><strong>Incorporation</strong> — incorporate as a Delaware C-Corp before fundraising. Investors expect it.</li>
+            <li class="warn"><strong>Founder titles</strong> — align on titles before investor meetings. Inconsistent titles signal misalignment.</li>
+            <li class="warn"><strong>Commitment level</strong> — who is full time now vs. at what milestone? Get this explicit.</li>
+            <li><strong>Subscription price</strong> — set before App Store launch. Hard to raise prices on existing users.</li>
+            <li><strong>Target market</strong> — consumer only, or does B2B (corporate wellness) get pursued in parallel?</li>
+            <li><strong>IP assignment</strong> — make sure all founders have signed IP assignment agreements assigning work to the company.</li>
+        </ul>
+    </div>
+
+    <footer>&copy; 2026 Manifest Me &mdash; Internal Use Only</footer>
+
+</body>
+</html>
